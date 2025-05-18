@@ -6,7 +6,7 @@
 </head>
 <body>
     <script>
-  // Space Shooter Game Code for Chrome Extension
+// Space Shooter Game Code for Chrome Extension & Mobile Web
 
 const GAME_WIDTH = 480;
 const GAME_HEIGHT = 640;
@@ -197,7 +197,7 @@ function drawInstructions() {
     ctx.font = 'bold 16px Arial';
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
-    ctx.fillText('Move Mouse: Control | Left Click: Auto Fire', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
+    ctx.fillText('Move: Mouse or Touch | Fire: Click or Tap', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40);
     ctx.fillText('N: New Game | P: Pause/Resume | Q: Quit', GAME_WIDTH / 2, GAME_HEIGHT / 2 - 10);
     ctx.restore();
 }
@@ -407,6 +407,36 @@ function onKeyDown(e) {
     }
 }
 
+// --- Touch event handlers for mobile ---
+function onTouchStart(e) {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        let touch = e.touches[0];
+        movePlayerToTouch(touch);
+        isShooting = true;
+        shoot();
+    }
+}
+
+function onTouchMove(e) {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        let touch = e.touches[0];
+        movePlayerToTouch(touch);
+    }
+}
+
+function onTouchEnd(e) {
+    e.preventDefault();
+    isShooting = false;
+}
+
+function movePlayerToTouch(touch) {
+    let rect = canvas.getBoundingClientRect();
+    let tx = touch.clientX - rect.left;
+    player.x = Math.max(PLAYER_SIZE / 2, Math.min(GAME_WIDTH - PLAYER_SIZE / 2, tx));
+}
+
 function continuousShootLoop() {
     if (isShooting && gameState === 'playing' && !isPaused) {
         shoot();
@@ -419,6 +449,11 @@ function setupEventListeners() {
     canvas.addEventListener('mousedown', onMouseDown);
     canvas.addEventListener('mouseup', onMouseUp);
     window.addEventListener('keydown', onKeyDown);
+
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', onTouchStart, {passive: false});
+    canvas.addEventListener('touchmove', onTouchMove, {passive: false});
+    canvas.addEventListener('touchend', onTouchEnd, {passive: false});
 }
 
 function showMenu() {
@@ -437,6 +472,7 @@ function main() {
 main();
 // To test the game, the main() function is already called, so the game starts when the file is run.
 // If you need a separate test function, you can write it as below.
+
     </script>
 </body>
 </html>
